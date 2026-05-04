@@ -2,86 +2,43 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Enterprise Diagnostic Suite</title>
+<title>AI Diagnostic Suite</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-:root{
-  --bg:#0f172a;
-  --card:#1e293b;
-  --text:#fff;
-}
-
-.light{
-  --bg:#f1f5f9;
-  --card:#ffffff;
-  --text:#000;
-}
-
-body{
-  margin:0;
-  font-family:Segoe UI;
-  background:var(--bg);
-  color:var(--text);
-}
+body{margin:0;font-family:Segoe UI;background:#020617;color:white;}
 
 nav{
-  display:flex;
-  justify-content:space-between;
-  padding:15px;
-  background:var(--card);
+display:flex;justify-content:space-between;padding:15px;background:#020617;border-bottom:1px solid #1e293b;
 }
 
 button{cursor:pointer}
 
-.layout{
-  display:grid;
-  grid-template-columns:220px 1fr;
-}
+.layout{display:grid;grid-template-columns:220px 1fr;}
 
-.sidebar{
-  background:var(--card);
-  padding:15px;
-}
+.sidebar{background:#020617;padding:15px;border-right:1px solid #1e293b;}
+.sidebar div{margin:10px 0;color:#94a3b8;cursor:pointer;}
+.sidebar div:hover{color:white;}
 
-.sidebar div{
-  margin:10px 0;
-  cursor:pointer;
-}
+.content{padding:20px;}
 
-.content{
-  padding:20px;
-}
+.card{background:#1e293b;padding:15px;border-radius:10px;margin-bottom:15px;}
 
-.card{
-  background:var(--card);
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:15px;
-}
+input{width:100%;padding:8px;margin:5px 0;border:none;border-radius:8px;}
 
-input{
-  width:100%;
-  padding:8px;
-  margin:5px 0;
-}
-
-.kpis{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-}
-
-.kpi{
-  text-align:center;
-  padding:10px;
-  background:#020617;
-  border-radius:10px;
-}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.kpi{background:#020617;padding:10px;text-align:center;border-radius:10px;}
 
 .optimo{background:#22c55e;color:black;}
 .regular{background:#eab308;color:black;}
 .critico{background:#ef4444;}
+
+.alerta{
+position:fixed;bottom:20px;right:20px;
+background:#ef4444;padding:10px;border-radius:8px;
+animation:fade 3s forwards;
+}
+@keyframes fade{0%{opacity:1}100%{opacity:0}}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -90,24 +47,12 @@ input{
 <body>
 
 <nav>
-<div>🏢 Enterprise Diagnostic</div>
+<div>🧠 AI Diagnostic System</div>
 <div>
-<button onclick="toggleTheme()">Modo</button>
 <button onclick="exportar()">Exportar</button>
 </div>
 </nav>
 
-<div id="login" class="card">
-<h2>Login</h2>
-<input id="user" placeholder="Usuario">
-<select id="role">
-<option>Admin</option>
-<option>Tecnico</option>
-</select>
-<button onclick="login()">Entrar</button>
-</div>
-
-<div id="app" style="display:none">
 <div class="layout">
 
 <div class="sidebar">
@@ -125,18 +70,22 @@ input{
 <div class="kpi">Óptimos<br><b id="o"></b></div>
 <div class="kpi">Críticos<br><b id="c"></b></div>
 </div>
-
 <div class="card"><canvas id="chart"></canvas></div>
 </div>
 
 <div id="analisis" style="display:none">
 <div class="card">
+
 <input id="ram" placeholder="RAM">
 <input id="cpu" placeholder="CPU">
-<input id="temp" placeholder="Temp">
+<input id="temp" placeholder="Temperatura">
 <input id="disk" placeholder="Disco">
+
 <button onclick="analizar()">Analizar</button>
+
 <div id="res"></div>
+<div id="ia"></div>
+
 </div>
 </div>
 
@@ -146,79 +95,94 @@ input{
 
 </div>
 </div>
-</div>
 
 <script>
 let data=JSON.parse(localStorage.getItem("data"))||[];
 let chart;
 
-function login(){
-  if(user.value){
-    login.style.display="none";
-    app.style.display="block";
-    update();
-  }
-}
-
 function view(v){
-  ["dash","analisis","historial"].forEach(id=>{
-    document.getElementById(id).style.display="none";
-  });
-  document.getElementById(v).style.display="block";
+["dash","analisis","historial"].forEach(x=>document.getElementById(x).style.display="none");
+document.getElementById(v).style.display="block";
+update();
 }
 
 function analizar(){
-  let ramv=+ram.value, cpuv=+cpu.value, tempv=+temp.value, diskv=+disk.value;
-  let score=100, estado="Óptimo";
+let ramv=+ram.value, cpuv=+cpu.value, tempv=+temp.value, diskv=+disk.value;
 
-  if(ramv<8)score-=20;
-  if(cpuv>80)score-=25;
-  if(tempv>80)score-=30;
-  if(diskv<20)score-=15;
+let score=100, estado="Óptimo", riesgo=0;
+let recomendaciones=[];
 
-  if(score<80)estado="Regular";
-  if(score<50)estado="Crítico";
+if(ramv<8){score-=20; riesgo+=20; recomendaciones.push("Aumentar RAM");}
+if(cpuv>80){score-=25; riesgo+=25; recomendaciones.push("Optimizar procesos");}
+if(tempv>80){score-=30; riesgo+=30; recomendaciones.push("Revisar ventilación");}
+if(diskv<20){score-=15; riesgo+=15; recomendaciones.push("Liberar espacio");}
 
-  let obj={ramv,cpuv,tempv,diskv,score,estado,fecha:new Date().toLocaleString()};
-  data.push(obj);
-  localStorage.setItem("data",JSON.stringify(data));
+if(score<80)estado="Regular";
+if(score<50)estado="Crítico";
 
-  res.innerHTML=`<div class="${estado.toLowerCase()}">${estado} ${score}%</div>`;
+let prediccion = score - (riesgo * 0.2);
 
-  update();
+let obj={ramv,cpuv,tempv,diskv,score,estado,riesgo,prediccion,fecha:new Date().toLocaleString()};
+data.push(obj);
+localStorage.setItem("data",JSON.stringify(data));
+
+res.innerHTML=`<div class="${estado.toLowerCase()}">${estado} - ${score}%</div>`;
+
+ia.innerHTML=`
+<div class="card">
+<h3>🧠 Análisis Inteligente</h3>
+<p>Riesgo: ${riesgo}%</p>
+<p>Predicción: ${Math.round(prediccion)}%</p>
+<p>Recomendaciones:</p>
+<ul>${recomendaciones.map(r=>"<li>"+r+"</li>").join("")}</ul>
+</div>
+`;
+
+if(estado=="Crítico"){
+let alerta=document.createElement("div");
+alerta.className="alerta";
+alerta.innerText="⚠ Sistema en estado crítico";
+document.body.appendChild(alerta);
+setTimeout(()=>alerta.remove(),3000);
+}
+
+update();
 }
 
 function update(){
-  t.innerText=data.length;
-  p.innerText=Math.round(data.reduce((a,b)=>a+b.score,0)/data.length)||0;
-  o.innerText=data.filter(d=>d.estado=="Óptimo").length;
-  c.innerText=data.filter(d=>d.estado=="Crítico").length;
+t.innerText=data.length;
+p.innerText=Math.round(data.reduce((a,b)=>a+b.score,0)/data.length)||0;
+o.innerText=data.filter(d=>d.estado=="Óptimo").length;
+c.innerText=data.filter(d=>d.estado=="Crítico").length;
 
-  lista.innerHTML=data.map(d=>`
-    <div class="card">${d.estado} ${d.score}%<br>${d.fecha}</div>
-  `).reverse().join("");
+lista.innerHTML=data.map(d=>`
+<div class="card">
+${d.estado} ${d.score}%<br>
+Riesgo: ${d.riesgo}%<br>
+Predicción: ${Math.round(d.prediccion)}%<br>
+${d.fecha}
+</div>
+`).reverse().join("");
 
-  if(chart)chart.destroy();
-  chart=new Chart(chart=document.getElementById("chart"),{
-    type:"line",
-    data:{
-      labels:data.map(d=>d.fecha),
-      datasets:[{data:data.map(d=>d.score)}]
-    }
-  });
+if(chart)chart.destroy();
+chart=new Chart(document.getElementById("chart"),{
+type:"line",
+data:{
+labels:data.map(d=>d.fecha),
+datasets:[{label:"Score",data:data.map(d=>d.score)}]
 }
-
-function toggleTheme(){
-  document.body.classList.toggle("light");
+});
 }
 
 function exportar(){
-  let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  let a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="data.json";
-  a.click();
+let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+let a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="enterprise-data.json";
+a.click();
 }
+
+update();
 </script>
 
 </body>
