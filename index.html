@@ -1,39 +1,190 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>Diagnóstico PC</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico Inteligente</title>
+
+<style>
+body{
+  margin:0;
+  font-family: 'Segoe UI', sans-serif;
+  background:#0f172a;
+  color:white;
+}
+
+header{
+  background:#1e293b;
+  padding:15px;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+}
+
+.container{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:90vh;
+}
+
+.card{
+  background:#1e293b;
+  padding:30px;
+  border-radius:15px;
+  width:350px;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:8px;
+  background:#0f172a;
+  color:white;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#22c55e;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  background:#16a34a;
+}
+
+.result{
+  margin-top:20px;
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
+}
+
+.optimo{ background:#22c55e; color:black;}
+.regular{ background:#eab308; color:black;}
+.critico{ background:#ef4444;}
+
+.bar{
+  height:10px;
+  background:#334155;
+  border-radius:10px;
+  margin-top:10px;
+  overflow:hidden;
+}
+
+.fill{
+  height:100%;
+  width:0%;
+  background:#22c55e;
+  transition:1s;
+}
+
+ul{
+  text-align:left;
+  margin-top:10px;
+}
+</style>
 </head>
-<body style="font-family:Arial;text-align:center">
 
-<h1>Diagnóstico de Computador</h1>
+<body>
 
-<input id="ram" placeholder="RAM (GB)"><br><br>
-<input id="cpu" placeholder="CPU (%)"><br><br>
-<input id="temp" placeholder="Temperatura"><br><br>
+<header>
+💻 Sistema Inteligente de Diagnóstico
+</header>
 
-<button onclick="analizar()">Analizar</button>
+<div class="container">
+<div class="card">
 
-<h2 id="resultado"></h2>
+<h2>Analizar rendimiento</h2>
+
+<input id="ram" placeholder="RAM (GB)">
+<input id="cpu" placeholder="CPU (%)">
+<input id="temp" placeholder="Temperatura (°C)">
+<input id="disk" placeholder="Disco libre (%)">
+
+<button onclick="analizar()">Analizar sistema</button>
+
+<div id="resultado"></div>
+
+</div>
+</div>
 
 <script>
 function analizar(){
-  let ram = +document.getElementById("ram").value;
-  let cpu = +document.getElementById("cpu").value;
-  let temp = +document.getElementById("temp").value;
+  let ram = +ramInput();
+  let cpu = +cpuInput();
+  let temp = +tempInput();
+  let disk = +diskInput();
 
   let score = 100;
   let estado = "Óptimo";
+  let problemas = [];
+  let recomendaciones = [];
 
-  if(ram < 8) score -= 20;
-  if(cpu > 80) score -= 25;
-  if(temp > 80) score -= 30;
+  if(ram < 8){
+    score -= 20;
+    problemas.push("RAM insuficiente");
+    recomendaciones.push("Aumentar memoria RAM");
+  }
+
+  if(cpu > 80){
+    score -= 25;
+    problemas.push("Uso alto de CPU");
+    recomendaciones.push("Cerrar procesos innecesarios");
+  }
+
+  if(temp > 80){
+    score -= 30;
+    problemas.push("Temperatura elevada");
+    recomendaciones.push("Revisar ventilación");
+  }
+
+  if(disk < 20){
+    score -= 15;
+    problemas.push("Poco espacio en disco");
+    recomendaciones.push("Liberar espacio o usar SSD");
+  }
 
   if(score < 80) estado = "Regular";
   if(score < 50) estado = "Crítico";
 
-  document.getElementById("resultado").innerText =
-    estado + " - Score: " + score;
+  let clase = estado.toLowerCase();
+
+  document.getElementById("resultado").innerHTML = `
+    <div class="result ${clase}">
+      <h3>${estado}</h3>
+      <p>Score: ${score}%</p>
+
+      <div class="bar">
+        <div class="fill" id="barra"></div>
+      </div>
+
+      <h4>Problemas:</h4>
+      <ul>${problemas.map(p=>`<li>${p}</li>`).join("")}</ul>
+
+      <h4>Recomendaciones:</h4>
+      <ul>${recomendaciones.map(r=>`<li>${r}</li>`).join("")}</ul>
+    </div>
+  `;
+
+  setTimeout(()=>{
+    document.getElementById("barra").style.width = score+"%";
+  },100);
 }
+
+function ramInput(){ return document.getElementById("ram").value }
+function cpuInput(){ return document.getElementById("cpu").value }
+function tempInput(){ return document.getElementById("temp").value }
+function diskInput(){ return document.getElementById("disk").value }
 </script>
 
 </body>
