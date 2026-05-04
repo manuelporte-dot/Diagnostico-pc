@@ -2,67 +2,158 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>AI Diagnostic Suite</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enterprise Diagnostic</title>
 
 <style>
-body{margin:0;font-family:Segoe UI;background:#020617;color:white;}
+:root{
+  --bg:#0f172a;
+  --sidebar:#020617;
+  --card:#1e293b;
+  --accent:#22c55e;
+  --danger:#ef4444;
+  --warn:#eab308;
+  --text:#e2e8f0;
+}
 
+body{
+  margin:0;
+  font-family:Segoe UI;
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* NAV */
 nav{
-display:flex;justify-content:space-between;padding:15px;background:#020617;border-bottom:1px solid #1e293b;
+  background:var(--sidebar);
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid #1e293b;
 }
 
-button{cursor:pointer}
-
-.layout{display:grid;grid-template-columns:220px 1fr;}
-
-.sidebar{background:#020617;padding:15px;border-right:1px solid #1e293b;}
-.sidebar div{margin:10px 0;color:#94a3b8;cursor:pointer;}
-.sidebar div:hover{color:white;}
-
-.content{padding:20px;}
-
-.card{background:#1e293b;padding:15px;border-radius:10px;margin-bottom:15px;}
-
-input{width:100%;padding:8px;margin:5px 0;border:none;border-radius:8px;}
-
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.kpi{background:#020617;padding:10px;text-align:center;border-radius:10px;}
-
-.optimo{background:#22c55e;color:black;}
-.regular{background:#eab308;color:black;}
-.critico{background:#ef4444;}
-
-.alerta{
-position:fixed;bottom:20px;right:20px;
-background:#ef4444;padding:10px;border-radius:8px;
-animation:fade 3s forwards;
+/* LAYOUT */
+.layout{
+  display:grid;
+  grid-template-columns:220px 1fr;
 }
-@keyframes fade{0%{opacity:1}100%{opacity:0}}
+
+/* SIDEBAR */
+.sidebar{
+  background:var(--sidebar);
+  padding:20px;
+  height:100vh;
+}
+
+.sidebar h3{
+  margin-bottom:20px;
+}
+
+.menu div{
+  margin:10px 0;
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.menu div:hover{
+  background:#1e293b;
+}
+
+/* CONTENT */
+.content{
+  padding:20px;
+}
+
+.card{
+  background:var(--card);
+  padding:20px;
+  border-radius:12px;
+  margin-bottom:15px;
+}
+
+/* KPI */
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+.kpi{
+  text-align:center;
+  padding:15px;
+  border-radius:10px;
+  background:#020617;
+}
+
+/* FORM */
+input{
+  width:100%;
+  padding:10px;
+  margin:5px 0 15px;
+  border:none;
+  border-radius:8px;
+  background:#020617;
+  color:white;
+}
+
+/* BUTTON */
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:var(--accent);
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{opacity:0.8}
+
+/* STATES */
+.optimo{background:var(--accent);color:black;}
+.regular{background:var(--warn);color:black;}
+.critico{background:var(--danger);}
+
+/* PROGRESS */
+.bar{
+  height:8px;
+  background:#334155;
+  border-radius:10px;
+  overflow:hidden;
+}
+.fill{
+  height:100%;
+  width:0%;
+  background:var(--accent);
+  transition:1s;
+}
 </style>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
 <nav>
-<div>🧠 AI Diagnostic System</div>
-<div>
-<button onclick="exportar()">Exportar</button>
-</div>
+<div>🏢 Enterprise Diagnostic System</div>
+<div>Admin</div>
 </nav>
 
 <div class="layout">
 
+<!-- SIDEBAR -->
 <div class="sidebar">
+<h3>Menú</h3>
+<div class="menu">
 <div onclick="view('dash')">Dashboard</div>
 <div onclick="view('analisis')">Diagnóstico</div>
 <div onclick="view('historial')">Historial</div>
 </div>
+</div>
 
+<!-- CONTENT -->
 <div class="content">
 
+<!-- DASHBOARD -->
 <div id="dash">
 <div class="kpis">
 <div class="kpi">Total<br><b id="t"></b></div>
@@ -70,35 +161,36 @@ animation:fade 3s forwards;
 <div class="kpi">Óptimos<br><b id="o"></b></div>
 <div class="kpi">Críticos<br><b id="c"></b></div>
 </div>
-<div class="card"><canvas id="chart"></canvas></div>
 </div>
 
+<!-- ANALISIS -->
 <div id="analisis" style="display:none">
 <div class="card">
 
-<input id="ram" placeholder="RAM">
-<input id="cpu" placeholder="CPU">
-<input id="temp" placeholder="Temperatura">
-<input id="disk" placeholder="Disco">
+<h3>Diagnóstico del sistema</h3>
 
-<button onclick="analizar()">Analizar</button>
+<input id="ram" placeholder="RAM (GB)">
+<input id="cpu" placeholder="CPU (%)">
+<input id="temp" placeholder="Temperatura °C">
+<input id="disk" placeholder="Disco libre %">
+
+<button onclick="analizar()">Ejecutar análisis</button>
 
 <div id="res"></div>
-<div id="ia"></div>
 
 </div>
 </div>
 
+<!-- HISTORIAL -->
 <div id="historial" style="display:none">
-<div class="card" id="lista"></div>
+<div id="lista"></div>
 </div>
 
 </div>
 </div>
 
 <script>
-let data=JSON.parse(localStorage.getItem("data"))||[];
-let chart;
+let data=[];
 
 function view(v){
 ["dash","analisis","historial"].forEach(x=>document.getElementById(x).style.display="none");
@@ -107,44 +199,36 @@ update();
 }
 
 function analizar(){
-let ramv=+ram.value, cpuv=+cpu.value, tempv=+temp.value, diskv=+disk.value;
+let r=+ram.value,c=+cpu.value,t=+temp.value,d=+disk.value;
 
-let score=100, estado="Óptimo", riesgo=0;
-let recomendaciones=[];
+let score=100,estado="Óptimo";
+let problemas=[],rec=[];
 
-if(ramv<8){score-=20; riesgo+=20; recomendaciones.push("Aumentar RAM");}
-if(cpuv>80){score-=25; riesgo+=25; recomendaciones.push("Optimizar procesos");}
-if(tempv>80){score-=30; riesgo+=30; recomendaciones.push("Revisar ventilación");}
-if(diskv<20){score-=15; riesgo+=15; recomendaciones.push("Liberar espacio");}
+if(r<8){score-=20;problemas.push("RAM baja");rec.push("Aumentar RAM");}
+if(c>80){score-=25;problemas.push("CPU alta");rec.push("Cerrar procesos");}
+if(t>80){score-=30;problemas.push("Temperatura alta");rec.push("Revisar ventilación");}
+if(d<20){score-=15;problemas.push("Disco lleno");rec.push("Liberar espacio");}
 
 if(score<80)estado="Regular";
 if(score<50)estado="Crítico";
 
-let prediccion = score - (riesgo * 0.2);
+data.push({score,estado,fecha:new Date().toLocaleTimeString()});
 
-let obj={ramv,cpuv,tempv,diskv,score,estado,riesgo,prediccion,fecha:new Date().toLocaleString()};
-data.push(obj);
-localStorage.setItem("data",JSON.stringify(data));
+res.innerHTML=`
+<div class="card ${estado.toLowerCase()}">
+<h3>${estado}</h3>
+<p>Score: ${score}%</p>
+<div class="bar"><div class="fill" id="barra"></div></div>
 
-res.innerHTML=`<div class="${estado.toLowerCase()}">${estado} - ${score}%</div>`;
+<h4>Problemas</h4>
+<ul>${problemas.map(p=>"<li>"+p+"</li>").join("")}</ul>
 
-ia.innerHTML=`
-<div class="card">
-<h3>🧠 Análisis Inteligente</h3>
-<p>Riesgo: ${riesgo}%</p>
-<p>Predicción: ${Math.round(prediccion)}%</p>
-<p>Recomendaciones:</p>
-<ul>${recomendaciones.map(r=>"<li>"+r+"</li>").join("")}</ul>
+<h4>Recomendaciones</h4>
+<ul>${rec.map(r=>"<li>"+r+"</li>").join("")}</ul>
 </div>
 `;
 
-if(estado=="Crítico"){
-let alerta=document.createElement("div");
-alerta.className="alerta";
-alerta.innerText="⚠ Sistema en estado crítico";
-document.body.appendChild(alerta);
-setTimeout(()=>alerta.remove(),3000);
-}
+setTimeout(()=>barra.style.width=score+"%",100);
 
 update();
 }
@@ -157,32 +241,10 @@ c.innerText=data.filter(d=>d.estado=="Crítico").length;
 
 lista.innerHTML=data.map(d=>`
 <div class="card">
-${d.estado} ${d.score}%<br>
-Riesgo: ${d.riesgo}%<br>
-Predicción: ${Math.round(d.prediccion)}%<br>
-${d.fecha}
+${d.estado} - ${d.score}%<br>${d.fecha}
 </div>
 `).reverse().join("");
-
-if(chart)chart.destroy();
-chart=new Chart(document.getElementById("chart"),{
-type:"line",
-data:{
-labels:data.map(d=>d.fecha),
-datasets:[{label:"Score",data:data.map(d=>d.score)}]
 }
-});
-}
-
-function exportar(){
-let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-let a=document.createElement("a");
-a.href=URL.createObjectURL(blob);
-a.download="enterprise-data.json";
-a.click();
-}
-
-update();
 </script>
 
 </body>
