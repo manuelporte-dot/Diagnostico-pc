@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enterprise Diagnostic</title>
+<title>AI Diagnostic SaaS</title>
 
 <style>
 :root{
@@ -18,86 +18,36 @@
 
 body{
   margin:0;
-  font-family:Segoe UI;
-  background:var(--bg);
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#020617,#0f172a);
   color:var(--text);
 }
 
-/* NAV */
-nav{
-  background:var(--sidebar);
-  padding:15px;
+/* LOGIN */
+#login{
   display:flex;
-  justify-content:space-between;
-  border-bottom:1px solid #1e293b;
-}
-
-/* LAYOUT */
-.layout{
-  display:grid;
-  grid-template-columns:220px 1fr;
-}
-
-/* SIDEBAR */
-.sidebar{
-  background:var(--sidebar);
-  padding:20px;
+  justify-content:center;
+  align-items:center;
   height:100vh;
 }
 
-.sidebar h3{
-  margin-bottom:20px;
-}
-
-.menu div{
-  margin:10px 0;
-  padding:10px;
-  border-radius:8px;
-  cursor:pointer;
-}
-
-.menu div:hover{
-  background:#1e293b;
-}
-
-/* CONTENT */
-.content{
-  padding:20px;
-}
-
-.card{
+.login-box{
   background:var(--card);
-  padding:20px;
-  border-radius:12px;
-  margin-bottom:15px;
+  padding:30px;
+  border-radius:15px;
+  width:300px;
 }
 
-/* KPI */
-.kpis{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-}
-
-.kpi{
-  text-align:center;
-  padding:15px;
-  border-radius:10px;
-  background:#020617;
-}
-
-/* FORM */
 input{
   width:100%;
   padding:10px;
-  margin:5px 0 15px;
+  margin:10px 0;
   border:none;
   border-radius:8px;
   background:#020617;
   color:white;
 }
 
-/* BUTTON */
 button{
   width:100%;
   padding:12px;
@@ -108,19 +58,60 @@ button{
   cursor:pointer;
 }
 
-button:hover{opacity:0.8}
+.layout{
+  display:grid;
+  grid-template-columns:220px 1fr;
+}
+
+/* SIDEBAR */
+.sidebar{
+  background:var(--sidebar);
+  height:100vh;
+  padding:20px;
+}
+
+.menu div{
+  padding:10px;
+  margin:10px 0;
+  border-radius:8px;
+  cursor:pointer;
+}
+.menu div:hover{background:#1e293b}
+
+/* CONTENT */
+.content{padding:20px}
+
+.card{
+  background:var(--card);
+  padding:20px;
+  border-radius:12px;
+  margin-bottom:15px;
+}
+
+/* KPIs */
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+.kpi{
+  background:#020617;
+  padding:15px;
+  text-align:center;
+  border-radius:10px;
+}
 
 /* STATES */
 .optimo{background:var(--accent);color:black;}
 .regular{background:var(--warn);color:black;}
 .critico{background:var(--danger);}
 
-/* PROGRESS */
+/* BAR */
 .bar{
   height:8px;
   background:#334155;
   border-radius:10px;
-  overflow:hidden;
 }
 .fill{
   height:100%;
@@ -129,31 +120,38 @@ button:hover{opacity:0.8}
   transition:1s;
 }
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
-<nav>
-<div>🏢 Enterprise Diagnostic System</div>
-<div>Admin</div>
-</nav>
+<!-- LOGIN -->
+<div id="login">
+<div class="login-box">
+<h2>Login</h2>
+<input id="user" placeholder="Usuario">
+<button onclick="login()">Entrar</button>
+</div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
 
 <div class="layout">
 
-<!-- SIDEBAR -->
 <div class="sidebar">
-<h3>Menú</h3>
+<h3>Dashboard</h3>
 <div class="menu">
-<div onclick="view('dash')">Dashboard</div>
+<div onclick="view('dash')">Inicio</div>
 <div onclick="view('analisis')">Diagnóstico</div>
 <div onclick="view('historial')">Historial</div>
 </div>
 </div>
 
-<!-- CONTENT -->
 <div class="content">
 
-<!-- DASHBOARD -->
+<!-- DASH -->
 <div id="dash">
 <div class="kpis">
 <div class="kpi">Total<br><b id="t"></b></div>
@@ -161,23 +159,22 @@ button:hover{opacity:0.8}
 <div class="kpi">Óptimos<br><b id="o"></b></div>
 <div class="kpi">Críticos<br><b id="c"></b></div>
 </div>
+<div class="card"><canvas id="chart"></canvas></div>
 </div>
 
 <!-- ANALISIS -->
 <div id="analisis" style="display:none">
 <div class="card">
+<h3>Análisis</h3>
 
-<h3>Diagnóstico del sistema</h3>
+<input id="ram" placeholder="RAM GB">
+<input id="cpu" placeholder="CPU %">
+<input id="temp" placeholder="Temp °C">
+<input id="disk" placeholder="Disco %">
 
-<input id="ram" placeholder="RAM (GB)">
-<input id="cpu" placeholder="CPU (%)">
-<input id="temp" placeholder="Temperatura °C">
-<input id="disk" placeholder="Disco libre %">
-
-<button onclick="analizar()">Ejecutar análisis</button>
+<button onclick="analizar()">Analizar</button>
 
 <div id="res"></div>
-
 </div>
 </div>
 
@@ -188,9 +185,19 @@ button:hover{opacity:0.8}
 
 </div>
 </div>
+</div>
 
 <script>
 let data=[];
+let chart;
+
+function login(){
+  if(user.value){
+    login.style.display="none";
+    app.style.display="block";
+    update();
+  }
+}
 
 function view(v){
 ["dash","analisis","historial"].forEach(x=>document.getElementById(x).style.display="none");
@@ -202,12 +209,12 @@ function analizar(){
 let r=+ram.value,c=+cpu.value,t=+temp.value,d=+disk.value;
 
 let score=100,estado="Óptimo";
-let problemas=[],rec=[];
+let prob=[],rec=[];
 
-if(r<8){score-=20;problemas.push("RAM baja");rec.push("Aumentar RAM");}
-if(c>80){score-=25;problemas.push("CPU alta");rec.push("Cerrar procesos");}
-if(t>80){score-=30;problemas.push("Temperatura alta");rec.push("Revisar ventilación");}
-if(d<20){score-=15;problemas.push("Disco lleno");rec.push("Liberar espacio");}
+if(r<8){score-=20;prob.push("RAM baja");rec.push("Aumentar RAM");}
+if(c>80){score-=25;prob.push("CPU alta");rec.push("Cerrar procesos");}
+if(t>80){score-=30;prob.push("Temperatura alta");rec.push("Revisar ventilación");}
+if(d<20){score-=15;prob.push("Disco lleno");rec.push("Liberar espacio");}
 
 if(score<80)estado="Regular";
 if(score<50)estado="Crítico";
@@ -221,7 +228,7 @@ res.innerHTML=`
 <div class="bar"><div class="fill" id="barra"></div></div>
 
 <h4>Problemas</h4>
-<ul>${problemas.map(p=>"<li>"+p+"</li>").join("")}</ul>
+<ul>${prob.map(p=>"<li>"+p+"</li>").join("")}</ul>
 
 <h4>Recomendaciones</h4>
 <ul>${rec.map(r=>"<li>"+r+"</li>").join("")}</ul>
@@ -244,6 +251,16 @@ lista.innerHTML=data.map(d=>`
 ${d.estado} - ${d.score}%<br>${d.fecha}
 </div>
 `).reverse().join("");
+
+if(chart) chart.destroy();
+
+chart=new Chart(document.getElementById("chart"),{
+type:"line",
+data:{
+labels:data.map(d=>d.fecha),
+datasets:[{label:"Rendimiento",data:data.map(d=>d.score)}]
+}
+});
 }
 </script>
 
