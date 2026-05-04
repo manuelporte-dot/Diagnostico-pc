@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Diagnóstico PC</title>
+</head>
+<body style="font-family:Arial;text-align:center">
+
+<h1>Diagnóstico de Computador</h1>
+
+<input id="ram" placeholder="RAM (GB)"><br><br>
+<input id="cpu" placeholder="CPU (%)"><br><br>
+<input id="temp" placeholder="Temperatura"><br><br>
+
+<button onclick="analizar()">Analizar</button>
+
+<h2 id="resultado"></h2>
+
+<script>
+function analizar(){
+  let ram = +document.getElementById("ram").value;
+  let cpu = +document.getElementById("cpu").value;
+  let temp = +document.getElementById("temp").value;
+
+  let score = 100;
+  let estado = "Óptimo";
+
+  if(ram < 8) score -= 20;
+  if(cpu > 80) score -= 25;
+  if(temp > 80) score -= 30;
+
+  if(score < 80) estado = "Regular";
+  if(score < 50) estado = "Crítico";
+
+  document.getElementById("resultado").innerText =
+    estado + " - Score: " + score;
+}
+</script>
+
+</body>
+</html>
