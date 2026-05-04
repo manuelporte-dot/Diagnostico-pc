@@ -3,133 +3,145 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Diagnostic SaaS</title>
+<title>AI Diagnostic Voice</title>
 
 <style>
 :root{
-  --bg:#0f172a;
-  --sidebar:#020617;
-  --card:#1e293b;
+  --bg:linear-gradient(135deg,#020617,#0f172a);
+  --glass:rgba(255,255,255,0.05);
   --accent:#22c55e;
   --danger:#ef4444;
   --warn:#eab308;
-  --text:#e2e8f0;
 }
 
 body{
   margin:0;
-  font-family:'Segoe UI',sans-serif;
-  background:linear-gradient(135deg,#020617,#0f172a);
-  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI';
+  background:var(--bg);
+  color:white;
+}
+
+/* GLASS */
+.card{
+  backdrop-filter:blur(20px);
+  background:var(--glass);
+  border-radius:20px;
+  padding:25px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.5);
+  animation:fade 0.6s ease;
+}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1}
 }
 
 /* LOGIN */
 #login{
+  height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
+}
+
+/* LAYOUT */
+.layout{
+  display:grid;
+  grid-template-columns:220px 1fr;
   height:100vh;
 }
 
-.login-box{
-  background:var(--card);
+/* SIDEBAR */
+.sidebar{padding:20px;}
+.menu div{
+  padding:12px;
+  margin:10px 0;
+  border-radius:10px;
+  cursor:pointer;
+}
+.menu div:hover{background:rgba(255,255,255,0.1);}
+
+/* CONTENT */
+.content{
   padding:30px;
-  border-radius:15px;
-  width:300px;
 }
 
+/* INPUT */
 input{
   width:100%;
-  padding:10px;
+  padding:12px;
   margin:10px 0;
   border:none;
-  border-radius:8px;
-  background:#020617;
+  border-radius:10px;
+  background:rgba(0,0,0,0.3);
   color:white;
 }
 
+/* BUTTON */
 button{
   width:100%;
-  padding:12px;
+  padding:14px;
   border:none;
-  border-radius:10px;
+  border-radius:12px;
   background:var(--accent);
   font-weight:bold;
   cursor:pointer;
 }
+button:hover{transform:scale(1.03);}
 
-.layout{
-  display:grid;
-  grid-template-columns:220px 1fr;
-}
-
-/* SIDEBAR */
-.sidebar{
-  background:var(--sidebar);
-  height:100vh;
-  padding:20px;
-}
-
-.menu div{
-  padding:10px;
-  margin:10px 0;
-  border-radius:8px;
-  cursor:pointer;
-}
-.menu div:hover{background:#1e293b}
-
-/* CONTENT */
-.content{padding:20px}
-
-.card{
-  background:var(--card);
-  padding:20px;
+/* RESULT */
+.result{
+  margin-top:15px;
+  padding:15px;
   border-radius:12px;
-  margin-bottom:15px;
+}
+.optimo{background:var(--accent);color:black;}
+.regular{background:var(--warn);color:black;}
+.critico{background:var(--danger);}
+
+/* IA */
+.ai{
+  margin-top:15px;
+  padding:15px;
+  border-left:4px solid var(--accent);
+  background:rgba(0,0,0,0.3);
+  border-radius:10px;
+  font-style:italic;
 }
 
-/* KPIs */
+/* KPI */
 .kpis{
   display:grid;
   grid-template-columns:repeat(4,1fr);
   gap:10px;
 }
-
 .kpi{
-  background:#020617;
-  padding:15px;
   text-align:center;
-  border-radius:10px;
+  padding:15px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.05);
 }
 
-/* STATES */
-.optimo{background:var(--accent);color:black;}
-.regular{background:var(--warn);color:black;}
-.critico{background:var(--danger);}
-
-/* BAR */
-.bar{
-  height:8px;
-  background:#334155;
-  border-radius:10px;
+/* LOADER */
+.loader{
+  border:3px solid rgba(255,255,255,0.1);
+  border-top:3px solid var(--accent);
+  border-radius:50%;
+  width:30px;
+  height:30px;
+  animation:spin 1s linear infinite;
+  margin:auto;
 }
-.fill{
-  height:100%;
-  width:0%;
-  background:var(--accent);
-  transition:1s;
-}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
 <!-- LOGIN -->
 <div id="login">
-<div class="login-box">
-<h2>Login</h2>
+<div class="card" style="width:300px">
+<h2>AI Login</h2>
 <input id="user" placeholder="Usuario">
 <button onclick="login()">Entrar</button>
 </div>
@@ -137,15 +149,13 @@ button{
 
 <!-- APP -->
 <div id="app" style="display:none">
-
 <div class="layout">
 
-<div class="sidebar">
-<h3>Dashboard</h3>
+<div class="sidebar card">
+<h3>🧠 AI System</h3>
 <div class="menu">
-<div onclick="view('dash')">Inicio</div>
+<div onclick="view('dash')">Dashboard</div>
 <div onclick="view('analisis')">Diagnóstico</div>
-<div onclick="view('historial')">Historial</div>
 </div>
 </div>
 
@@ -159,28 +169,25 @@ button{
 <div class="kpi">Óptimos<br><b id="o"></b></div>
 <div class="kpi">Críticos<br><b id="c"></b></div>
 </div>
-<div class="card"><canvas id="chart"></canvas></div>
 </div>
 
 <!-- ANALISIS -->
 <div id="analisis" style="display:none">
 <div class="card">
-<h3>Análisis</h3>
 
-<input id="ram" placeholder="RAM GB">
-<input id="cpu" placeholder="CPU %">
-<input id="temp" placeholder="Temp °C">
-<input id="disk" placeholder="Disco %">
+<h3>Diagnóstico Inteligente</h3>
+
+<input id="ram" placeholder="RAM">
+<input id="cpu" placeholder="CPU">
+<input id="temp" placeholder="Temperatura">
+<input id="disk" placeholder="Disco">
 
 <button onclick="analizar()">Analizar</button>
 
 <div id="res"></div>
-</div>
-</div>
+<div id="ai"></div>
 
-<!-- HISTORIAL -->
-<div id="historial" style="display:none">
-<div id="lista"></div>
+</div>
 </div>
 
 </div>
@@ -189,78 +196,76 @@ button{
 
 <script>
 let data=[];
-let chart;
 
+// LOGIN
 function login(){
-  if(user.value){
-    login.style.display="none";
-    app.style.display="block";
+  let u=document.getElementById("user").value;
+  if(u){
+    document.getElementById("login").style.display="none";
+    document.getElementById("app").style.display="block";
     update();
   }
 }
 
+// NAV
 function view(v){
-["dash","analisis","historial"].forEach(x=>document.getElementById(x).style.display="none");
-document.getElementById(v).style.display="block";
-update();
+  ["dash","analisis"].forEach(x=>document.getElementById(x).style.display="none");
+  document.getElementById(v).style.display="block";
 }
 
+// VOZ IA
+function hablar(texto){
+  let msg=new SpeechSynthesisUtterance(texto);
+  msg.lang="es-ES";
+  msg.rate=1;
+  speechSynthesis.speak(msg);
+}
+
+// ANALISIS
 function analizar(){
-let r=+ram.value,c=+cpu.value,t=+temp.value,d=+disk.value;
 
-let score=100,estado="Óptimo";
-let prob=[],rec=[];
+  res.innerHTML='<div class="loader"></div>';
+  ai.innerHTML="";
 
-if(r<8){score-=20;prob.push("RAM baja");rec.push("Aumentar RAM");}
-if(c>80){score-=25;prob.push("CPU alta");rec.push("Cerrar procesos");}
-if(t>80){score-=30;prob.push("Temperatura alta");rec.push("Revisar ventilación");}
-if(d<20){score-=15;prob.push("Disco lleno");rec.push("Liberar espacio");}
+  setTimeout(()=>{
 
-if(score<80)estado="Regular";
-if(score<50)estado="Crítico";
+    let r=+ram.value,c=+cpu.value,t=+temp.value,d=+disk.value;
+    let score=100,estado="Óptimo",mensaje="";
 
-data.push({score,estado,fecha:new Date().toLocaleTimeString()});
+    if(r<8)score-=20;
+    if(c>80)score-=25;
+    if(t>80)score-=30;
+    if(d<20)score-=15;
 
-res.innerHTML=`
-<div class="card ${estado.toLowerCase()}">
-<h3>${estado}</h3>
-<p>Score: ${score}%</p>
-<div class="bar"><div class="fill" id="barra"></div></div>
+    if(score<80)estado="Regular";
+    if(score<50)estado="Crítico";
 
-<h4>Problemas</h4>
-<ul>${prob.map(p=>"<li>"+p+"</li>").join("")}</ul>
+    data.push({score,estado});
 
-<h4>Recomendaciones</h4>
-<ul>${rec.map(r=>"<li>"+r+"</li>").join("")}</ul>
-</div>
-`;
+    if(estado=="Óptimo"){
+      mensaje="El sistema funciona correctamente.";
+    }else if(estado=="Regular"){
+      mensaje="Se recomienda optimizar el sistema.";
+    }else{
+      mensaje="Estado crítico. Se requiere intervención inmediata.";
+    }
 
-setTimeout(()=>barra.style.width=score+"%",100);
+    res.innerHTML=`<div class="result ${estado.toLowerCase()}">${estado} - ${score}%</div>`;
+    ai.innerHTML=`<div class="ai">🧠 IA: ${mensaje}</div>`;
 
-update();
+    hablar(mensaje); // 🔊 IA HABLA
+
+    update();
+
+  },1000);
 }
 
+// KPIs
 function update(){
-t.innerText=data.length;
-p.innerText=Math.round(data.reduce((a,b)=>a+b.score,0)/data.length)||0;
-o.innerText=data.filter(d=>d.estado=="Óptimo").length;
-c.innerText=data.filter(d=>d.estado=="Crítico").length;
-
-lista.innerHTML=data.map(d=>`
-<div class="card">
-${d.estado} - ${d.score}%<br>${d.fecha}
-</div>
-`).reverse().join("");
-
-if(chart) chart.destroy();
-
-chart=new Chart(document.getElementById("chart"),{
-type:"line",
-data:{
-labels:data.map(d=>d.fecha),
-datasets:[{label:"Rendimiento",data:data.map(d=>d.score)}]
-}
-});
+  t.innerText=data.length;
+  p.innerText=Math.round(data.reduce((a,b)=>a+b.score,0)/data.length)||0;
+  o.innerText=data.filter(d=>d.estado=="Óptimo").length;
+  c.innerText=data.filter(d=>d.estado=="Crítico").length;
 }
 </script>
 
