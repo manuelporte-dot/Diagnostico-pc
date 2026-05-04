@@ -2,189 +2,223 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<title>Enterprise Diagnostic Suite</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diagnóstico Inteligente</title>
 
 <style>
+:root{
+  --bg:#0f172a;
+  --card:#1e293b;
+  --text:#fff;
+}
+
+.light{
+  --bg:#f1f5f9;
+  --card:#ffffff;
+  --text:#000;
+}
+
 body{
   margin:0;
-  font-family: 'Segoe UI', sans-serif;
-  background:#0f172a;
-  color:white;
+  font-family:Segoe UI;
+  background:var(--bg);
+  color:var(--text);
 }
 
-header{
-  background:#1e293b;
-  padding:15px;
-  text-align:center;
-  font-size:22px;
-  font-weight:bold;
-}
-
-.container{
+nav{
   display:flex;
-  justify-content:center;
-  align-items:center;
-  height:90vh;
+  justify-content:space-between;
+  padding:15px;
+  background:var(--card);
+}
+
+button{cursor:pointer}
+
+.layout{
+  display:grid;
+  grid-template-columns:220px 1fr;
+}
+
+.sidebar{
+  background:var(--card);
+  padding:15px;
+}
+
+.sidebar div{
+  margin:10px 0;
+  cursor:pointer;
+}
+
+.content{
+  padding:20px;
 }
 
 .card{
-  background:#1e293b;
-  padding:30px;
-  border-radius:15px;
-  width:350px;
-  box-shadow:0 0 20px rgba(0,0,0,0.5);
+  background:var(--card);
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:15px;
 }
 
 input{
   width:100%;
-  padding:10px;
-  margin:8px 0;
-  border:none;
-  border-radius:8px;
-  background:#0f172a;
-  color:white;
+  padding:8px;
+  margin:5px 0;
 }
 
-button{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  background:#22c55e;
-  color:black;
-  font-weight:bold;
-  cursor:pointer;
-  transition:0.3s;
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
 }
 
-button:hover{
-  background:#16a34a;
-}
-
-.result{
-  margin-top:20px;
-  padding:15px;
-  border-radius:10px;
+.kpi{
   text-align:center;
-}
-
-.optimo{ background:#22c55e; color:black;}
-.regular{ background:#eab308; color:black;}
-.critico{ background:#ef4444;}
-
-.bar{
-  height:10px;
-  background:#334155;
+  padding:10px;
+  background:#020617;
   border-radius:10px;
-  margin-top:10px;
-  overflow:hidden;
 }
 
-.fill{
-  height:100%;
-  width:0%;
-  background:#22c55e;
-  transition:1s;
-}
-
-ul{
-  text-align:left;
-  margin-top:10px;
-}
+.optimo{background:#22c55e;color:black;}
+.regular{background:#eab308;color:black;}
+.critico{background:#ef4444;}
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
-<header>
-💻 Sistema Inteligente de Diagnóstico
-</header>
+<nav>
+<div>🏢 Enterprise Diagnostic</div>
+<div>
+<button onclick="toggleTheme()">Modo</button>
+<button onclick="exportar()">Exportar</button>
+</div>
+</nav>
 
-<div class="container">
+<div id="login" class="card">
+<h2>Login</h2>
+<input id="user" placeholder="Usuario">
+<select id="role">
+<option>Admin</option>
+<option>Tecnico</option>
+</select>
+<button onclick="login()">Entrar</button>
+</div>
+
+<div id="app" style="display:none">
+<div class="layout">
+
+<div class="sidebar">
+<div onclick="view('dash')">Dashboard</div>
+<div onclick="view('analisis')">Diagnóstico</div>
+<div onclick="view('historial')">Historial</div>
+</div>
+
+<div class="content">
+
+<div id="dash">
+<div class="kpis">
+<div class="kpi">Total<br><b id="t"></b></div>
+<div class="kpi">Promedio<br><b id="p"></b></div>
+<div class="kpi">Óptimos<br><b id="o"></b></div>
+<div class="kpi">Críticos<br><b id="c"></b></div>
+</div>
+
+<div class="card"><canvas id="chart"></canvas></div>
+</div>
+
+<div id="analisis" style="display:none">
 <div class="card">
+<input id="ram" placeholder="RAM">
+<input id="cpu" placeholder="CPU">
+<input id="temp" placeholder="Temp">
+<input id="disk" placeholder="Disco">
+<button onclick="analizar()">Analizar</button>
+<div id="res"></div>
+</div>
+</div>
 
-<h2>Analizar rendimiento</h2>
+<div id="historial" style="display:none">
+<div class="card" id="lista"></div>
+</div>
 
-<input id="ram" placeholder="RAM (GB)">
-<input id="cpu" placeholder="CPU (%)">
-<input id="temp" placeholder="Temperatura (°C)">
-<input id="disk" placeholder="Disco libre (%)">
-
-<button onclick="analizar()">Analizar sistema</button>
-
-<div id="resultado"></div>
-
+</div>
 </div>
 </div>
 
 <script>
-function analizar(){
-  let ram = +ramInput();
-  let cpu = +cpuInput();
-  let temp = +tempInput();
-  let disk = +diskInput();
+let data=JSON.parse(localStorage.getItem("data"))||[];
+let chart;
 
-  let score = 100;
-  let estado = "Óptimo";
-  let problemas = [];
-  let recomendaciones = [];
-
-  if(ram < 8){
-    score -= 20;
-    problemas.push("RAM insuficiente");
-    recomendaciones.push("Aumentar memoria RAM");
+function login(){
+  if(user.value){
+    login.style.display="none";
+    app.style.display="block";
+    update();
   }
-
-  if(cpu > 80){
-    score -= 25;
-    problemas.push("Uso alto de CPU");
-    recomendaciones.push("Cerrar procesos innecesarios");
-  }
-
-  if(temp > 80){
-    score -= 30;
-    problemas.push("Temperatura elevada");
-    recomendaciones.push("Revisar ventilación");
-  }
-
-  if(disk < 20){
-    score -= 15;
-    problemas.push("Poco espacio en disco");
-    recomendaciones.push("Liberar espacio o usar SSD");
-  }
-
-  if(score < 80) estado = "Regular";
-  if(score < 50) estado = "Crítico";
-
-  let clase = estado.toLowerCase();
-
-  document.getElementById("resultado").innerHTML = `
-    <div class="result ${clase}">
-      <h3>${estado}</h3>
-      <p>Score: ${score}%</p>
-
-      <div class="bar">
-        <div class="fill" id="barra"></div>
-      </div>
-
-      <h4>Problemas:</h4>
-      <ul>${problemas.map(p=>`<li>${p}</li>`).join("")}</ul>
-
-      <h4>Recomendaciones:</h4>
-      <ul>${recomendaciones.map(r=>`<li>${r}</li>`).join("")}</ul>
-    </div>
-  `;
-
-  setTimeout(()=>{
-    document.getElementById("barra").style.width = score+"%";
-  },100);
 }
 
-function ramInput(){ return document.getElementById("ram").value }
-function cpuInput(){ return document.getElementById("cpu").value }
-function tempInput(){ return document.getElementById("temp").value }
-function diskInput(){ return document.getElementById("disk").value }
+function view(v){
+  ["dash","analisis","historial"].forEach(id=>{
+    document.getElementById(id).style.display="none";
+  });
+  document.getElementById(v).style.display="block";
+}
+
+function analizar(){
+  let ramv=+ram.value, cpuv=+cpu.value, tempv=+temp.value, diskv=+disk.value;
+  let score=100, estado="Óptimo";
+
+  if(ramv<8)score-=20;
+  if(cpuv>80)score-=25;
+  if(tempv>80)score-=30;
+  if(diskv<20)score-=15;
+
+  if(score<80)estado="Regular";
+  if(score<50)estado="Crítico";
+
+  let obj={ramv,cpuv,tempv,diskv,score,estado,fecha:new Date().toLocaleString()};
+  data.push(obj);
+  localStorage.setItem("data",JSON.stringify(data));
+
+  res.innerHTML=`<div class="${estado.toLowerCase()}">${estado} ${score}%</div>`;
+
+  update();
+}
+
+function update(){
+  t.innerText=data.length;
+  p.innerText=Math.round(data.reduce((a,b)=>a+b.score,0)/data.length)||0;
+  o.innerText=data.filter(d=>d.estado=="Óptimo").length;
+  c.innerText=data.filter(d=>d.estado=="Crítico").length;
+
+  lista.innerHTML=data.map(d=>`
+    <div class="card">${d.estado} ${d.score}%<br>${d.fecha}</div>
+  `).reverse().join("");
+
+  if(chart)chart.destroy();
+  chart=new Chart(chart=document.getElementById("chart"),{
+    type:"line",
+    data:{
+      labels:data.map(d=>d.fecha),
+      datasets:[{data:data.map(d=>d.score)}]
+    }
+  });
+}
+
+function toggleTheme(){
+  document.body.classList.toggle("light");
+}
+
+function exportar(){
+  let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  let a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="data.json";
+  a.click();
+}
 </script>
 
 </body>
