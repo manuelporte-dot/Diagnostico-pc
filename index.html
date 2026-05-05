@@ -2,271 +2,255 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<title>AI Core System</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Diagnostic Voice</title>
 
 <style>
-:root{
-  --bg:linear-gradient(135deg,#020617,#0f172a);
-  --glass:rgba(255,255,255,0.05);
-  --accent:#22c55e;
-  --danger:#ef4444;
-  --warn:#eab308;
-}
-
 body{
   margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI';
-  background:var(--bg);
+  font-family:Segoe UI;
+  background:#020617;
   color:white;
 }
 
-/* GLASS */
-.card{
-  backdrop-filter:blur(20px);
-  background:var(--glass);
-  border-radius:20px;
-  padding:25px;
-  box-shadow:0 10px 40px rgba(0,0,0,0.5);
-  animation:fade 0.6s ease;
-}
-
-@keyframes fade{
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1}
-}
-
-/* LOGIN */
-#login{
-  height:100vh;
+/* HEADER */
+header{
+  padding:15px 25px;
   display:flex;
-  justify-content:center;
-  align-items:center;
+  justify-content:space-between;
+  background:#020617;
+  border-bottom:1px solid #1e293b;
 }
 
 /* LAYOUT */
-.layout{
+.main{
   display:grid;
-  grid-template-columns:220px 1fr;
-  height:100vh;
+  grid-template-columns:2fr 1fr;
+  height:calc(100vh - 60px);
 }
 
-/* SIDEBAR */
-.sidebar{padding:20px;}
-.menu div{
-  padding:12px;
-  margin:10px 0;
-  border-radius:10px;
-  cursor:pointer;
+/* MAPA */
+.map{
+  position:relative;
 }
-.menu div:hover{background:rgba(255,255,255,0.1);}
 
-/* CONTENT */
-.content{
-  padding:30px;
+/* NODOS */
+.node{
+  position:absolute;
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#1e293b;
+  transition:0.4s;
+}
+
+/* POSICIONES */
+#core{top:45%;left:45%;border:2px solid #22c55e;}
+#ram{top:15%;left:20%;}
+#cpu{top:75%;left:20%;}
+#temp{top:15%;left:70%;}
+#disk{top:75%;left:70%;}
+
+/* LINEAS ANIMADAS */
+.line{
+  position:absolute;
+  width:200px;
+  height:2px;
+  background:linear-gradient(90deg,transparent,#22c55e,transparent);
+  animation:flow 2s linear infinite;
+}
+@keyframes flow{
+  0%{background-position:0}
+  100%{background-position:200px}
+}
+
+/* PANEL */
+.panel{
+  padding:20px;
+  background:#0f172a;
+  overflow:auto;
 }
 
 /* INPUT */
 input{
   width:100%;
-  padding:12px;
-  margin:10px 0;
+  padding:10px;
+  margin:5px 0;
   border:none;
-  border-radius:10px;
-  background:rgba(0,0,0,0.3);
+  border-radius:8px;
+  background:#020617;
   color:white;
 }
 
 /* BUTTON */
 button{
   width:100%;
-  padding:14px;
+  padding:12px;
   border:none;
-  border-radius:12px;
-  background:var(--accent);
-  font-weight:bold;
+  border-radius:10px;
+  background:#22c55e;
   cursor:pointer;
 }
-button:hover{transform:scale(1.03);}
 
-/* RESULT */
-.result{
-  margin-top:15px;
-  padding:15px;
-  border-radius:12px;
+/* KPI */
+.kpi{
+  margin-top:10px;
+  padding:10px;
+  background:#020617;
+  border-radius:8px;
 }
-.optimo{background:var(--accent);color:black;}
-.regular{background:var(--warn);color:black;}
-.critico{background:var(--danger);}
+
+/* STATES */
+.optimo{background:#22c55e;color:black;}
+.regular{background:#eab308;color:black;}
+.critico{
+  background:#ef4444;
+  animation:pulse 1s infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 10px red;}
+  50%{box-shadow:0 0 30px red;}
+  100%{box-shadow:0 0 10px red;}
+}
 
 /* IA */
 .ai{
   margin-top:15px;
   padding:15px;
-  border-left:4px solid var(--accent);
-  background:rgba(0,0,0,0.3);
-  border-radius:10px;
-  font-style:italic;
+  background:#020617;
+  border-left:4px solid #22c55e;
 }
-
-/* KPI */
-.kpis{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-}
-.kpi{
-  text-align:center;
-  padding:15px;
-  border-radius:12px;
-  background:rgba(255,255,255,0.05);
-}
-
-/* LOADER */
-.loader{
-  border:3px solid rgba(255,255,255,0.1);
-  border-top:3px solid var(--accent);
-  border-radius:50%;
-  width:30px;
-  height:30px;
-  animation:spin 1s linear infinite;
-  margin:auto;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div id="login">
-<div class="card" style="width:300px">
-<h2>AI Login</h2>
-<input id="user" placeholder="Usuario">
-<button onclick="login()">Entrar</button>
-</div>
-</div>
+<header>
+<div>🧠 AI Core System</div>
+<div id="status">● Operativo</div>
+</header>
 
-<!-- APP -->
-<div id="app" style="display:none">
-<div class="layout">
+<div class="main">
 
-<div class="sidebar card">
-<h3>🧠 AI System</h3>
-<div class="menu">
-<div onclick="view('dash')">Dashboard</div>
-<div onclick="view('analisis')">Diagnóstico</div>
-</div>
-</div>
+<!-- MAPA -->
+<div class="map">
 
-<div class="content">
+<div id="core" class="node">CORE</div>
+<div id="ram" class="node">RAM</div>
+<div id="cpu" class="node">CPU</div>
+<div id="temp" class="node">TEMP</div>
+<div id="disk" class="node">DISK</div>
 
-<!-- DASH -->
-<div id="dash">
-<div class="kpis">
-<div class="kpi">Total<br><b id="t"></b></div>
-<div class="kpi">Promedio<br><b id="p"></b></div>
-<div class="kpi">Óptimos<br><b id="o"></b></div>
-<div class="kpi">Críticos<br><b id="c"></b></div>
-</div>
-</div>
-
-<!-- ANALISIS -->
-<div id="analisis" style="display:none">
-<div class="card">
-
-<h3>Diagnóstico Inteligente</h3>
-
-<input id="ram" placeholder="RAM">
-<input id="cpu" placeholder="CPU">
-<input id="temp" placeholder="Temperatura">
-<input id="disk" placeholder="Disco">
-
-<button onclick="analizar()">Analizar</button>
-
-<div id="res"></div>
-<div id="ai"></div>
+<!-- LINEAS -->
+<div class="line" style="top:50%;left:50%;transform:rotate(45deg)"></div>
+<div class="line" style="top:50%;left:50%;transform:rotate(-45deg)"></div>
+<div class="line" style="top:50%;left:50%;transform:rotate(120deg)"></div>
+<div class="line" style="top:50%;left:50%;transform:rotate(-120deg)"></div>
 
 </div>
-</div>
+
+<!-- PANEL -->
+<div class="panel">
+
+<h3>Panel Técnico</h3>
+
+<input id="ramInput" placeholder="RAM (GB)">
+<input id="cpuInput" placeholder="CPU (%)">
+<input id="tempInput" placeholder="Temp (°C)">
+<input id="diskInput" placeholder="Disco (%)">
+
+<button onclick="analizar()">Ejecutar análisis</button>
+
+<div id="kpis"></div>
+<div id="resultado"></div>
+<div id="ia"></div>
 
 </div>
-</div>
+
 </div>
 
 <script>
-let data=[];
 
-// LOGIN
-function login(){
-  let u=document.getElementById("user").value;
-  if(u){
-    document.getElementById("login").style.display="none";
-    document.getElementById("app").style.display="block";
-    update();
-  }
-}
-
-// NAV
-function view(v){
-  ["dash","analisis"].forEach(x=>document.getElementById(x).style.display="none");
-  document.getElementById(v).style.display="block";
-}
-
-// VOZ IA
-function hablar(texto){
-  let msg=new SpeechSynthesisUtterance(texto);
-  msg.lang="es-ES";
-  msg.rate=1;
-  speechSynthesis.speak(msg);
+// VOZ
+function hablar(t){
+let m=new SpeechSynthesisUtterance(t);
+m.lang="es-ES";
+speechSynthesis.speak(m);
 }
 
 // ANALISIS
 function analizar(){
 
-  res.innerHTML='<div class="loader"></div>';
-  ai.innerHTML="";
+let r=+ramInput.value,c=+cpuInput.value,t=+tempInput.value,d=+diskInput.value;
 
-  setTimeout(()=>{
+let score=100;
+if(r<8)score-=20;
+if(c>80)score-=25;
+if(t>80)score-=30;
+if(d<20)score-=15;
 
-    let r=+ram.value,c=+cpu.value,t=+temp.value,d=+disk.value;
-    let score=100,estado="Óptimo",mensaje="";
+let estado="Óptimo";
+if(score<80)estado="Regular";
+if(score<50)estado="Crítico";
 
-    if(r<8)score-=20;
-    if(c>80)score-=25;
-    if(t>80)score-=30;
-    if(d<20)score-=15;
+// KPI
+kpis.innerHTML=`
+<div class="kpi">RAM: ${r} GB</div>
+<div class="kpi">CPU: ${c}%</div>
+<div class="kpi">Temp: ${t}°C</div>
+<div class="kpi">Disco: ${d}%</div>
+<div class="kpi">Score: ${score}%</div>
+`;
 
-    if(score<80)estado="Regular";
-    if(score<50)estado="Crítico";
+// RESULTADO
+resultado.innerHTML=`<div class="${estado.toLowerCase()} kpi">${estado}</div>`;
 
-    data.push({score,estado});
-
-    if(estado=="Óptimo"){
-      mensaje="El sistema funciona correctamente.";
-    }else if(estado=="Regular"){
-      mensaje="Se recomienda optimizar el sistema.";
-    }else{
-      mensaje="Estado crítico. Se requiere intervención inmediata.";
-    }
-
-    res.innerHTML=`<div class="result ${estado.toLowerCase()}">${estado} - ${score}%</div>`;
-    ai.innerHTML=`<div class="ai">🧠 IA: ${mensaje}</div>`;
-
-    hablar(mensaje); // 🔊 IA HABLA
-
-    update();
-
-  },1000);
+// IA
+let exp="",rec="";
+if(estado=="Óptimo"){
+exp="El sistema opera dentro de parámetros normales.";
+rec="No se requieren acciones correctivas.";
+}
+else if(estado=="Regular"){
+exp="Se detectan desviaciones que afectan el rendimiento.";
+rec="Optimizar recursos y monitorear.";
+}
+else{
+exp="El sistema presenta condiciones críticas.";
+rec="Intervención inmediata necesaria.";
 }
 
-// KPIs
-function update(){
-  t.innerText=data.length;
-  p.innerText=Math.round(data.reduce((a,b)=>a+b.score,0)/data.length)||0;
-  o.innerText=data.filter(d=>d.estado=="Óptimo").length;
-  c.innerText=data.filter(d=>d.estado=="Crítico").length;
+ia.innerHTML=`
+<div class="ai">
+<b>IA:</b><br>
+${exp}<br><br>
+<b>Acción:</b> ${rec}
+</div>
+`;
+
+hablar(estado + ". " + exp);
+
+// NODOS
+update("ram",r<8,r<4);
+update("cpu",c>80,c>90);
+update("temp",t>80,t>90);
+update("disk",d<20,d<10);
+
 }
+
+// NODOS ESTADO
+function update(id,warn,crit){
+let el=document.getElementById(id);
+el.className="node";
+
+if(crit) el.classList.add("critico");
+else if(warn) el.classList.add("regular");
+else el.classList.add("optimo");
+}
+
 </script>
 
 </body>
