@@ -2,287 +2,369 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>AI Diagnóstico Enterprise</title>
+<title>AI Diagnóstico Enterprise | System Monitor</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-*{box-sizing:border-box;}
-body{
-  margin:0;
-  font-family:Segoe UI;
-  color:white;
-
-  background:
-    linear-gradient(rgba(2,6,23,0.85), rgba(2,6,23,0.95)),
-    url("https://images.unsplash.com/photo-1587202372775-e229f172b9d7");
-
-  background-size:cover;
-  background-position:center;
+:root {
+    --primary: #22c55e;
+    --warning: #eab308;
+    --danger: #ef4444;
+    --dark-bg: #020617;
+    --glass: rgba(15, 23, 42, 0.8);
 }
 
-/* LOGIN */
-#login{
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+* { box-sizing: border-box; transition: all 0.3s ease; }
+
+body {
+    margin: 0;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    color: white;
+    /* FONTO REAL: Imagen de servidor profesional con overlay oscuro */
+    background: 
+        linear-gradient(rgba(2, 6, 23, 0.8), rgba(2, 6, 23, 0.9)),
+        url("https://images.unsplash.com/photo-1558494949-ef010cbdcc4b?q=80&w=2034&auto=format&fit=crop");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    height: 100vh;
+    overflow: hidden;
 }
 
-.login-box{
-  background:rgba(15,23,42,0.8);
-  padding:30px;
-  border-radius:15px;
-  width:300px;
+/* LOGIN PROFESIONAL */
+#login {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(10px);
 }
 
-input,select{
-  width:100%;
-  padding:10px;
-  margin:5px 0;
-  border:none;
-  border-radius:10px;
-  background:#020617;
-  color:white;
+.login-box {
+    background: var(--glass);
+    padding: 40px;
+    border-radius: 24px;
+    width: 380px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    text-align: center;
 }
 
-button{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  border:none;
-  border-radius:10px;
-  background:#22c55e;
-  cursor:pointer;
+.login-box h2 { margin-bottom: 30px; font-weight: 300; letter-spacing: 2px; }
+
+input, select {
+    width: 100%;
+    padding: 14px;
+    margin: 10px 0;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    background: rgba(0,0,0,0.4);
+    color: white;
+    font-size: 14px;
 }
 
-/* APP */
-#app{display:none;}
+input:focus { border-color: var(--primary); outline: none; background: rgba(0,0,0,0.6); }
 
-header{
-  padding:15px;
-  text-align:center;
-  font-size:20px;
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 12px;
+    background: var(--primary);
+    color: var(--dark-bg);
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    letter-spacing: 1px;
 }
 
-.main{
-  display:grid;
-  grid-template-columns:2fr 1fr;
-  gap:20px;
-  padding:20px;
+button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3); }
+
+/* APP LAYOUT */
+#app { display: none; height: 100vh; }
+
+header {
+    padding: 20px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    letter-spacing: 3px;
 }
 
-/* MAPA */
-.map{
-  position:relative;
-  height:500px;
+.main-container {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 30px;
+    padding: 30px;
+    height: calc(100vh - 80px);
 }
 
-.node{
-  position:absolute;
-  width:90px;height:90px;
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  background:#1e293b;
-  transition:0.3s;
+/* MAPA CON CÍRCULOS Y ANIMACIONES */
+.map-viewport {
+    position: relative;
+    background: rgba(255,255,255,0.02);
+    border-radius: 30px;
+    border: 1px solid rgba(255,255,255,0.05);
+    overflow: hidden;
 }
 
-.optimo{background:#22c55e;}
-.regular{background:#eab308;}
-.critico{background:#ef4444; box-shadow:0 0 20px red;}
-
-#ram{top:10%;left:20%;}
-#cpu{top:80%;left:20%;}
-#temp{top:10%;left:70%;}
-#disk{top:80%;left:70%;}
-#core{top:45%;left:45%;border:2px solid #22c55e;}
-
-/* PANEL */
-.panel{
-  background:rgba(15,23,42,0.7);
-  padding:15px;
-  border-radius:15px;
-  backdrop-filter:blur(10px);
+.node {
+    position: absolute;
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #1e293b;
+    border: 2px solid rgba(255,255,255,0.1);
+    font-size: 0.7rem;
+    font-weight: bold;
 }
 
-.box{
-  background:#020617;
-  padding:10px;
-  border-radius:10px;
-  margin-top:10px;
+.node b { font-size: 1.1rem; display: block; }
+
+/* ESTADOS DE COLOR */
+.optimo { background: var(--primary); box-shadow: 0 0 30px rgba(34, 197, 94, 0.4); border-color: white; }
+.regular { background: var(--warning); box-shadow: 0 0 30px rgba(234, 179, 8, 0.4); border-color: white; }
+.critico { background: var(--danger); animation: pulse-red 1.5s infinite; border-color: white; }
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); transform: scale(1); }
+    70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); transform: scale(1.05); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); transform: scale(1); }
 }
 
-.hist{
-  font-size:12px;
-  border-bottom:1px solid #334155;
-  padding:5px 0;
+#core { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 150px; height: 150px; z-index: 5; font-size: 1rem; }
+#ram { top: 15%; left: 20%; }
+#cpu { bottom: 15%; left: 20%; }
+#temp { top: 15%; right: 20%; }
+#disk { bottom: 15%; right: 20%; }
+
+/* PANEL LATERAL PROFESIONAL */
+.side-panel {
+    background: var(--glass);
+    border-radius: 30px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+    border: 1px solid rgba(255,255,255,0.1);
 }
+
+.section-title {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--primary);
+    padding-left: 10px;
+}
+
+.data-card {
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+}
+
+.hist-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.8rem;
+}
+
+#ia-box {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    color: #bbf7d0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
 <div id="login">
-  <div class="login-box">
-    <h3>🔐 Iniciar sesión</h3>
-    <input id="user" placeholder="Usuario">
-    <input id="pass" type="password" placeholder="Contraseña">
-    <button onclick="login()">Entrar</button>
-  </div>
+    <div class="login-box">
+        <h2>SISTEMA AI<br><span style="font-size: 14px; color: var(--primary);">DIAGNÓSTICO ENTERPRISE</span></h2>
+        <input type="text" id="user" placeholder="Nombre de Usuario">
+        <input type="password" id="pass" placeholder="Contraseña">
+        <button onclick="handleLogin()">Acceder al Sistema</button>
+    </div>
 </div>
 
-<!-- APP -->
 <div id="app">
+    <header>DIAGNOSTIC DASHBOARD v4.0</header>
 
-<header>🧠 Sistema Inteligente de Diagnóstico</header>
+    <div class="main-container">
+        <div class="map-viewport">
+            <div id="core" class="node">SISTEMA <b id="scoreLabel">--</b></div>
+            <div id="ram" class="node">RAM <b id="ramLabel">-</b></div>
+            <div id="cpu" class="node">CPU <b id="cpuLabel">-</b></div>
+            <div id="temp" class="node">TEMP <b id="tempLabel">-</b></div>
+            <div id="disk" class="node">STORAGE <b id="diskLabel">-</b></div>
+        </div>
 
-<div class="main">
+        <div class="side-panel">
+            
+            <div>
+                <div class="section-title">Encuesta de Activos</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <select id="marca">
+                        <option>HP Enterprise</option>
+                        <option>Dell PowerEdge</option>
+                        <option>Lenovo ThinkStation</option>
+                    </select>
+                    <select id="edad">
+                        <option value="1">Nuevo (0-1 años)</option>
+                        <option value="3">Uso Medio (2-3 años)</option>
+                        <option value="6">Crítico (5+ años)</option>
+                    </select>
+                </div>
+                <select id="causa">
+                    <option value="normal">Operación Normal</option>
+                    <option value="lento">Degradación de Velocidad</option>
+                    <option value="calor">Anomalía Térmica</option>
+                </select>
+            </div>
 
-<!-- MAPA -->
-<div class="map">
-  <div id="core" class="node">CORE</div>
-  <div id="ram" class="node">RAM</div>
-  <div id="cpu" class="node">CPU</div>
-  <div id="temp" class="node">TEMP</div>
-  <div id="disk" class="node">DISK</div>
-</div>
+            <div>
+                <div class="section-title">Telemetría Directa</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="number" id="ramInput" placeholder="RAM Libre (GB)">
+                    <input type="number" id="cpuInput" placeholder="Uso CPU (%)">
+                    <input type="number" id="tempInput" placeholder="Temp (°C)">
+                    <input type="number" id="diskInput" placeholder="Disco Libre (%)">
+                </div>
+                <button onclick="ejecutarAnalisis()">Iniciar Escaneo IA</button>
+            </div>
 
-<!-- PANEL -->
-<div class="panel">
+            <div>
+                <div class="section-title">Análisis de IA</div>
+                <div id="ia-box" class="data-card">Esperando telemetría...</div>
+            </div>
 
-<h3>📋 Encuesta</h3>
-<select id="marca">
-<option>HP</option><option>Dell</option><option>Lenovo</option>
-</select>
+            <div>
+                <div class="section-title">Log de Eventos</div>
+                <div id="historial" class="data-card"></div>
+            </div>
 
-<select id="edad">
-<option value="1">0-1 años</option>
-<option value="3">2-3 años</option>
-<option value="5">4-5 años</option>
-<option value="7">6+ años</option>
-</select>
-
-<select id="causa">
-<option>lentitud</option>
-<option>sobrecalentamiento</option>
-<option>fallos</option>
-</select>
-
-<select id="procesos">
-<option>navegador</option>
-<option>juegos</option>
-<option>edicion</option>
-</select>
-
-<h3>⚙️ Datos</h3>
-<input id="ramInput" placeholder="RAM">
-<input id="cpuInput" placeholder="CPU">
-<input id="tempInput" placeholder="Temp">
-<input id="diskInput" placeholder="Disco">
-
-<button onclick="analizar()">Analizar</button>
-
-<div id="resultado"></div>
-<div id="ia"></div>
-
-<h3>📊 Historial</h3>
-<div id="historial"></div>
-
-</div>
-
-</div>
+        </div>
+    </div>
 </div>
 
 <script>
+let database = JSON.parse(localStorage.getItem("enterprise_logs")) || [];
 
-// LOGIN
-function login(){
-if(pass.value==="1234"){
-document.getElementById("login").style.display="none";
-document.getElementById("app").style.display="block";
-}else{
-alert("Contraseña incorrecta");
-}
-}
-
-// VOZ
-function hablar(t){
-let m=new SpeechSynthesisUtterance(t);
-m.lang="es-ES";
-speechSynthesis.speak(m);
-}
-
-// HISTORIAL
-let data = JSON.parse(localStorage.getItem("data")) || [];
-render();
-
-// ANALIZAR
-function analizar(){
-
-let r=+ramInput.value,c=+cpuInput.value,t=+tempInput.value,d=+diskInput.value;
-let edad=+document.getElementById("edad").value;
-let causa=document.getElementById("causa").value;
-let procesos=document.getElementById("procesos").value;
-
-// SCORE
-let score=100;
-if(r<8)score-=20;
-if(c>80)score-=25;
-if(t>80)score-=30;
-if(d<20)score-=15;
-
-let estado="Óptimo";
-if(score<80)estado="Regular";
-if(score<50)estado="Crítico";
-
-// UI
-resultado.innerHTML=`<div class="box">${estado} (${score}%)</div>`;
-
-// IA
-let rec=[];
-if(r<8) rec.push("Aumentar RAM");
-if(c>80) rec.push("Cerrar procesos CPU");
-if(t>80) rec.push("Limpiar ventilación");
-if(d<20) rec.push("Liberar disco");
-
-if(edad>5) rec.push("Actualizar hardware");
-if(causa=="lentitud") rec.push("Optimizar sistema");
-if(procesos=="juegos") rec.push("Revisar GPU");
-
-ia.innerHTML=`<div class="box">${rec.join("<br>")}</div>`;
-
-// VOZ
-hablar("Estado " + estado);
-
-// MAPA
-update("ram",r<8,r<4);
-update("cpu",c>80,c>90);
-update("temp",t>80,t>90);
-update("disk",d<20,d<10);
-
-// GUARDAR
-data.push({hora:new Date().toLocaleTimeString(),estado,score});
-localStorage.setItem("data", JSON.stringify(data));
-render();
+function handleLogin() {
+    const u = document.getElementById("user").value;
+    const p = document.getElementById("pass").value;
+    
+    if(p === "1234") {
+        document.getElementById("login").style.opacity = "0";
+        setTimeout(() => {
+            document.getElementById("login").style.display = "none";
+            document.getElementById("app").style.display = "block";
+            renderHistorial();
+        }, 500);
+    } else {
+        alert("Credenciales Inválidas");
+    }
 }
 
-// NODOS
-function update(id,warn,crit){
-let el=document.getElementById(id);
-el.className="node";
-if(crit) el.classList.add("critico");
-else if(warn) el.classList.add("regular");
-else el.classList.add("optimo");
+function hablar(texto) {
+    window.speechSynthesis.cancel();
+    const mensaje = new SpeechSynthesisUtterance(texto);
+    mensaje.lang = "es-ES";
+    mensaje.rate = 0.9;
+    window.speechSynthesis.speak(mensaje);
 }
 
-// HISTORIAL
-function render(){
-historial.innerHTML="";
-data.slice().reverse().forEach(d=>{
-historial.innerHTML+=`<div class="hist">${d.hora} - ${d.estado} (${d.score}%)</div>`;
-});
+function ejecutarAnalisis() {
+    // 1. Obtener valores
+    const ram = parseFloat(document.getElementById("ramInput").value);
+    const cpu = parseFloat(document.getElementById("cpuInput").value);
+    const temp = parseFloat(document.getElementById("tempInput").value);
+    const disk = parseFloat(document.getElementById("diskInput").value);
+
+    if([ram, cpu, temp, disk].some(isNaN)) return alert("Faltan datos de telemetría.");
+
+    // 2. Lógica de Puntuación (IA Score)
+    let score = 100;
+    let alertas = [];
+
+    if(ram < 8) { score -= 20; alertas.push("Baja disponibilidad de memoria."); }
+    if(cpu > 85) { score -= 25; alertas.push("Sobrecarga de hilos de procesamiento."); }
+    if(temp > 80) { score -= 30; alertas.push("Riesgo de estrangulamiento térmico."); }
+    if(disk < 15) { score -= 15; alertas.push("Capacidad de almacenamiento crítica."); }
+
+    const edad = parseInt(document.getElementById("edad").value);
+    if(edad > 5) { score -= 10; alertas.push("Hardware fuera de ciclo de vida óptimo."); }
+
+    // 3. Determinar Estado
+    let estado = "Óptimo";
+    if(score < 80) estado = "Regular";
+    if(score < 50) estado = "Crítico";
+
+    // 4. Actualizar Mapa Visual
+    updateNode("ram", ram < 8, ram < 4, ram + "GB");
+    updateNode("cpu", cpu > 70, cpu > 90, cpu + "%");
+    updateNode("temp", temp > 75, temp > 85, temp + "°C");
+    updateNode("disk", disk < 25, disk < 10, disk + "%");
+    updateNode("core", score < 80, score < 50, score + "%");
+
+    // 5. Panel de IA
+    const iaBox = document.getElementById("ia-box");
+    iaBox.innerHTML = `<strong>Diagnóstico:</strong> ${estado}<br><br>` + 
+                     (alertas.length > 0 ? alertas.map(a => "• " + a).join("<br>") : "Operación estable. No se requieren acciones inmediatas.");
+    
+    hablar(`Atención: Sistema en estado ${estado}. Se detectaron ${alertas.length} anomalías.`);
+
+    // 6. Historial
+    const log = { hora: new Date().toLocaleTimeString(), estado, score };
+    database.push(log);
+    localStorage.setItem("enterprise_logs", JSON.stringify(database));
+    renderHistorial();
 }
 
+function updateNode(id, warn, crit, val) {
+    const el = document.getElementById(id);
+    const label = document.getElementById(id + "Label");
+    
+    el.classList.remove("optimo", "regular", "critico");
+    
+    if(crit) el.classList.add("critico");
+    else if(warn) el.classList.add("regular");
+    else el.classList.add("optimo");
+
+    label.innerText = val;
+}
+
+function renderHistorial() {
+    const container = document.getElementById("historial");
+    container.innerHTML = database.slice(-5).reverse().map(l => `
+        <div class="hist-item">
+            <span>${l.hora}</span>
+            <span style="color:${l.score < 50 ? 'var(--danger)' : (l.score < 80 ? 'var(--warning)' : 'var(--primary)')}">
+                ${l.estado} (${l.score}%)
+            </span>
+        </div>
+    `).join("");
+}
 </script>
 
 </body>
