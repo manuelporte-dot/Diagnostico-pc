@@ -2,72 +2,139 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>AI System Enterprise</title>
+<title>AI Diagnóstico Pro</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+*{box-sizing:border-box;}
+
 body{
   margin:0;
   font-family:Segoe UI;
-  background:#020617;
   color:white;
+
+  background:
+    linear-gradient(rgba(2,6,23,0.85), rgba(2,6,23,0.95)),
+    url("https://images.unsplash.com/photo-1587202372775-e229f172b9d7");
+
+  background-size:cover;
+  background-position:center;
+}
+
+/* HEADER */
+header{
+  padding:20px;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
 }
 
 /* LAYOUT */
 .main{
   display:grid;
-  grid-template-columns:2fr 1fr;
-  height:100vh;
+  grid-template-columns:1.5fr 1fr;
+  gap:20px;
+  padding:20px;
 }
 
-/* PANEL */
+/* PANEL IZQUIERDO (VISUAL) */
+.visual{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.card-big{
+  width:80%;
+  padding:30px;
+  border-radius:20px;
+  background:rgba(15,23,42,0.6);
+  backdrop-filter:blur(10px);
+  text-align:center;
+}
+
+.score{
+  font-size:50px;
+  margin:20px 0;
+}
+
+/* PANEL DERECHO */
 .panel{
   padding:20px;
-  background:#0f172a;
-  overflow:auto;
+  border-radius:20px;
+  background:rgba(15,23,42,0.7);
+  backdrop-filter:blur(10px);
 }
 
-/* INPUT / SELECT */
+/* INPUTS */
 input,select{
   width:100%;
   padding:10px;
-  margin:5px 0;
+  margin:6px 0;
+  border:none;
+  border-radius:10px;
   background:#020617;
   color:white;
-  border:none;
-  border-radius:8px;
 }
 
+/* BUTTON */
 button{
   width:100%;
-  padding:10px;
-  margin-top:5px;
-  background:#22c55e;
+  padding:12px;
+  margin-top:10px;
   border:none;
+  border-radius:10px;
+  background:#22c55e;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+button:hover{
+  transform:scale(1.03);
 }
 
-/* BLOQUES */
+/* RESULTADOS */
 .box{
   background:#020617;
   padding:10px;
+  border-radius:10px;
   margin-top:10px;
-  border-radius:8px;
 }
 
+/* HISTORIAL */
 .hist{
   font-size:12px;
   border-bottom:1px solid #334155;
   padding:5px 0;
+}
+
+/* ANIMACIÓN */
+.fade{
+  animation:fade 0.5s ease;
+}
+@keyframes fade{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;}
 }
 </style>
 </head>
 
 <body>
 
+<header>🧠 Sistema Inteligente de Diagnóstico</header>
+
 <div class="main">
 
-<div></div>
+<!-- IZQUIERDA -->
+<div class="visual">
+  <div class="card-big">
+    <h2>Estado del Sistema</h2>
+    <div id="estado" class="score">--</div>
+    <div id="detalle"></div>
+  </div>
+</div>
 
+<!-- DERECHA -->
 <div class="panel">
 
 <h3>📋 Encuesta</h3>
@@ -107,9 +174,8 @@ button{
 <input id="temp" placeholder="Temp °C">
 <input id="disk" placeholder="Disco %">
 
-<button onclick="analizar()">Analizar</button>
+<button onclick="analizar()">Analizar sistema</button>
 
-<div id="resultado"></div>
 <div id="ia"></div>
 
 <h3>📊 Historial</h3>
@@ -128,13 +194,14 @@ m.lang="es-ES";
 speechSynthesis.speak(m);
 }
 
-// CARGAR HISTORIAL
-let historialData = JSON.parse(localStorage.getItem("historial")) || [];
-renderHistorial();
+// HISTORIAL
+let data = JSON.parse(localStorage.getItem("data")) || [];
+render();
 
+// ANALISIS
 function analizar(){
 
-let marca=document.getElementById("marca").value;
+let marca=marca.value;
 let edad=+document.getElementById("edad").value;
 let causa=document.getElementById("causa").value;
 let procesos=document.getElementById("procesos").value;
@@ -152,59 +219,50 @@ let estado="Óptimo";
 if(score<80)estado="Regular";
 if(score<50)estado="Crítico";
 
+// UI IZQUIERDA
+document.getElementById("estado").innerText=score+"%";
+document.getElementById("detalle").innerText=estado;
+
 // IA
 let rec=[];
 
-if(r<8) rec.push("Aumentar RAM.");
-if(c>80) rec.push("Reducir uso de CPU.");
-if(t>80) rec.push("Mejorar ventilación.");
-if(d<20) rec.push("Liberar disco.");
+if(r<8) rec.push("Aumentar RAM");
+if(c>80) rec.push("Cerrar procesos CPU");
+if(t>80) rec.push("Limpiar ventilación");
+if(d<20) rec.push("Liberar disco");
 
-// ENCUESTA
-if(edad>5) rec.push("Equipo antiguo, considerar actualización.");
-if(causa=="lentitud") rec.push("Optimizar inicio.");
-if(procesos=="juegos") rec.push("Revisar requisitos gráficos.");
+if(edad>5) rec.push("Actualizar hardware");
+if(causa=="lentitud") rec.push("Optimizar inicio");
+if(procesos=="juegos") rec.push("Revisar GPU");
 
-if(rec.length==0) rec.push("Sistema estable.");
-
-// UI
-resultado.innerHTML=`<div class="box">${estado} (${score}%)</div>`;
+if(rec.length==0) rec.push("Sistema estable");
 
 ia.innerHTML=`
-<div class="box">
-<b>IA:</b><br>
-${rec.join("<br>")}
+<div class="box fade">
+<b>IA recomienda:</b><br>${rec.join("<br>")}
 </div>
 `;
 
 // GUARDAR
-let registro={
-fecha:new Date().toLocaleString(),
-estado,
+data.push({
+fecha:new Date().toLocaleTimeString(),
 score,
-marca,
-edad,
-causa
-};
-
-historialData.push(registro);
-localStorage.setItem("historial", JSON.stringify(historialData));
-
-renderHistorial();
+estado
+});
+localStorage.setItem("data", JSON.stringify(data));
+render();
 
 // VOZ
 hablar("Estado " + estado);
 
 }
 
-// MOSTRAR HISTORIAL
-function renderHistorial(){
+// RENDER HISTORIAL
+function render(){
 historial.innerHTML="";
-historialData.slice().reverse().forEach(r=>{
+data.slice().reverse().forEach(d=>{
 historial.innerHTML+=`
-<div class="hist">
-${r.fecha} - ${r.estado} (${r.score}%)
-</div>
+<div class="hist">${d.fecha} - ${d.estado} (${d.score}%)</div>
 `;
 });
 }
