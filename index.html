@@ -2,203 +2,118 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>AI Core System Pro</title>
+<title>AI System Enterprise</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-
-/* 🎨 FONDO CREATIVO */
 body{
   margin:0;
   font-family:Segoe UI;
+  background:#020617;
   color:white;
-
-  background:
-    radial-gradient(circle at 20% 30%, rgba(34,197,94,0.15), transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(59,130,246,0.15), transparent 40%),
-    linear-gradient(rgba(2,6,23,0.92), rgba(2,6,23,0.98)),
-    url("https://images.unsplash.com/photo-1587202372775-e229f172b9d7");
-
-  background-size:cover;
-  background-position:center;
-  background-attachment:fixed;
-}
-
-/* HEADER */
-header{
-  padding:15px 25px;
-  display:flex;
-  justify-content:space-between;
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  box-shadow:0 0 20px rgba(34,197,94,0.2);
 }
 
 /* LAYOUT */
 .main{
   display:grid;
   grid-template-columns:2fr 1fr;
-  height:calc(100vh - 60px);
+  height:100vh;
 }
 
-/* MAPA */
-.map{
-  position:relative;
-}
-
-/* NODOS */
-.node{
-  position:absolute;
-  width:110px;
-  height:110px;
-  border-radius:50%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:#1e293b;
-  transition:0.4s;
-}
-
-/* POSICIONES */
-#core{top:45%;left:45%;border:2px solid #22c55e;}
-#ram{top:15%;left:20%;}
-#cpu{top:75%;left:20%;}
-#temp{top:15%;left:70%;}
-#disk{top:75%;left:70%;}
-
-/* LINEAS ANIMADAS */
-.line{
-  position:absolute;
-  width:200px;
-  height:2px;
-  background:linear-gradient(90deg,transparent,#22c55e,transparent);
-  animation:flow 2s linear infinite;
-}
-@keyframes flow{
-  0%{background-position:0}
-  100%{background-position:200px}
-}
-
-/* PANEL GLASS */
+/* PANEL */
 .panel{
   padding:20px;
-  background: rgba(15,23,42,0.65);
-  backdrop-filter: blur(14px);
-  border-left:1px solid rgba(255,255,255,0.05);
+  background:#0f172a;
   overflow:auto;
 }
 
-/* INPUT */
-input{
+/* INPUT / SELECT */
+input,select{
   width:100%;
   padding:10px;
   margin:5px 0;
-  border:none;
-  border-radius:8px;
   background:#020617;
   color:white;
+  border:none;
+  border-radius:8px;
 }
 
-/* BUTTON */
 button{
   width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  background:#22c55e;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-/* KPI */
-.kpi{
-  margin-top:10px;
   padding:10px;
-  background:#020617;
-  border-radius:8px;
-}
-
-/* RESULT */
-.box{
-  margin-top:10px;
-  padding:12px;
-  border-radius:8px;
-  font-weight:bold;
-}
-
-/* ESTADOS */
-.optimo{
+  margin-top:5px;
   background:#22c55e;
-  color:black;
-  box-shadow:0 0 15px #22c55e;
-}
-.regular{
-  background:#eab308;
-  color:black;
-  box-shadow:0 0 15px #eab308;
-}
-.critico{
-  background:#ef4444;
-  animation:pulse 1s infinite;
+  border:none;
 }
 
-@keyframes pulse{
-  0%{box-shadow:0 0 10px red;}
-  50%{box-shadow:0 0 30px red;}
-  100%{box-shadow:0 0 10px red;}
-}
-
-/* IA */
-.ai{
-  margin-top:15px;
-  padding:15px;
+/* BLOQUES */
+.box{
   background:#020617;
-  border-left:4px solid #22c55e;
+  padding:10px;
+  margin-top:10px;
   border-radius:8px;
 }
 
+.hist{
+  font-size:12px;
+  border-bottom:1px solid #334155;
+  padding:5px 0;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-<div>🧠 AI Core System</div>
-<div id="status">● Sistema activo</div>
-</header>
-
 <div class="main">
 
-<!-- MAPA -->
-<div class="map">
+<div></div>
 
-<div id="core" class="node">CORE</div>
-<div id="ram" class="node">RAM</div>
-<div id="cpu" class="node">CPU</div>
-<div id="temp" class="node">TEMP</div>
-<div id="disk" class="node">DISK</div>
-
-<div class="line" style="top:50%;left:50%;transform:rotate(45deg)"></div>
-<div class="line" style="top:50%;left:50%;transform:rotate(-45deg)"></div>
-<div class="line" style="top:50%;left:50%;transform:rotate(120deg)"></div>
-<div class="line" style="top:50%;left:50%;transform:rotate(-120deg)"></div>
-
-</div>
-
-<!-- PANEL -->
 <div class="panel">
 
-<h3>Panel Técnico</h3>
+<h3>📋 Encuesta</h3>
 
-<input id="ramInput" placeholder="RAM (GB)">
-<input id="cpuInput" placeholder="CPU (%)">
-<input id="tempInput" placeholder="Temperatura (°C)">
-<input id="diskInput" placeholder="Disco (%)">
+<select id="marca">
+<option>HP</option>
+<option>Dell</option>
+<option>Lenovo</option>
+<option>Asus</option>
+</select>
 
-<button onclick="analizar()">Ejecutar análisis</button>
+<select id="edad">
+<option value="1">0-1 años</option>
+<option value="3">2-3 años</option>
+<option value="5">4-5 años</option>
+<option value="7">6+ años</option>
+</select>
 
-<div id="kpis"></div>
+<select id="causa">
+<option>lentitud</option>
+<option>sobrecalentamiento</option>
+<option>ruido</option>
+<option>fallos</option>
+</select>
+
+<select id="procesos">
+<option>navegador</option>
+<option>juegos</option>
+<option>edicion</option>
+<option>ofimatica</option>
+</select>
+
+<h3>⚙️ Datos técnicos</h3>
+
+<input id="ram" placeholder="RAM GB">
+<input id="cpu" placeholder="CPU %">
+<input id="temp" placeholder="Temp °C">
+<input id="disk" placeholder="Disco %">
+
+<button onclick="analizar()">Analizar</button>
+
 <div id="resultado"></div>
 <div id="ia"></div>
+
+<h3>📊 Historial</h3>
+<div id="historial"></div>
 
 </div>
 
@@ -206,21 +121,28 @@ button{
 
 <script>
 
-// 🔊 VOZ IA
-function hablar(texto){
-  let m = new SpeechSynthesisUtterance(texto);
-  m.lang = "es-ES";
-  m.rate = 1;
-  speechSynthesis.speak(m);
+// VOZ
+function hablar(t){
+let m=new SpeechSynthesisUtterance(t);
+m.lang="es-ES";
+speechSynthesis.speak(m);
 }
 
-// 🧠 ANALISIS
+// CARGAR HISTORIAL
+let historialData = JSON.parse(localStorage.getItem("historial")) || [];
+renderHistorial();
+
 function analizar(){
 
-let r=+ramInput.value,c=+cpuInput.value,t=+tempInput.value,d=+diskInput.value;
+let marca=document.getElementById("marca").value;
+let edad=+document.getElementById("edad").value;
+let causa=document.getElementById("causa").value;
+let procesos=document.getElementById("procesos").value;
 
+let r=+ram.value,c=+cpu.value,t=+temp.value,d=+disk.value;
+
+// SCORE
 let score=100;
-
 if(r<8)score-=20;
 if(c>80)score-=25;
 if(t>80)score-=30;
@@ -230,60 +152,61 @@ let estado="Óptimo";
 if(score<80)estado="Regular";
 if(score<50)estado="Crítico";
 
-// KPIs
-kpis.innerHTML=`
-<div class="kpi">RAM: ${r} GB</div>
-<div class="kpi">CPU: ${c}%</div>
-<div class="kpi">Temp: ${t}°C</div>
-<div class="kpi">Disco: ${d}%</div>
-<div class="kpi">Score: ${score}%</div>
-`;
-
-// RESULTADO
-resultado.innerHTML=`<div class="box ${estado.toLowerCase()}">${estado}</div>`;
-
 // IA
-let exp="",rec="";
-if(estado=="Óptimo"){
-exp="El sistema opera dentro de parámetros normales.";
-rec="No se requieren acciones correctivas.";
-}
-else if(estado=="Regular"){
-exp="Se detectan desviaciones que afectan el rendimiento.";
-rec="Optimizar procesos y monitorear el sistema.";
-}
-else{
-exp="El sistema presenta condiciones críticas.";
-rec="Se requiere intervención inmediata del sistema.";
-}
+let rec=[];
+
+if(r<8) rec.push("Aumentar RAM.");
+if(c>80) rec.push("Reducir uso de CPU.");
+if(t>80) rec.push("Mejorar ventilación.");
+if(d<20) rec.push("Liberar disco.");
+
+// ENCUESTA
+if(edad>5) rec.push("Equipo antiguo, considerar actualización.");
+if(causa=="lentitud") rec.push("Optimizar inicio.");
+if(procesos=="juegos") rec.push("Revisar requisitos gráficos.");
+
+if(rec.length==0) rec.push("Sistema estable.");
+
+// UI
+resultado.innerHTML=`<div class="box">${estado} (${score}%)</div>`;
 
 ia.innerHTML=`
-<div class="ai">
+<div class="box">
 <b>IA:</b><br>
-${exp}<br><br>
-<b>Recomendación:</b> ${rec}
+${rec.join("<br>")}
 </div>
 `;
 
-// 🔊 VOZ
-hablar(estado + ". " + exp);
+// GUARDAR
+let registro={
+fecha:new Date().toLocaleString(),
+estado,
+score,
+marca,
+edad,
+causa
+};
 
-// MAPA VISUAL
-update("ram",r<8,r<4);
-update("cpu",c>80,c>90);
-update("temp",t>80,t>90);
-update("disk",d<20,d<10);
+historialData.push(registro);
+localStorage.setItem("historial", JSON.stringify(historialData));
+
+renderHistorial();
+
+// VOZ
+hablar("Estado " + estado);
 
 }
 
-// 🔄 ESTADO NODOS
-function update(id,warn,crit){
-let el=document.getElementById(id);
-el.className="node";
-
-if(crit) el.classList.add("critico");
-else if(warn) el.classList.add("regular");
-else el.classList.add("optimo");
+// MOSTRAR HISTORIAL
+function renderHistorial(){
+historial.innerHTML="";
+historialData.slice().reverse().forEach(r=>{
+historial.innerHTML+=`
+<div class="hist">
+${r.fecha} - ${r.estado} (${r.score}%)
+</div>
+`;
+});
 }
 
 </script>
