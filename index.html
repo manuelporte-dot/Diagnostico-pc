@@ -142,10 +142,10 @@
             
             <h3>📊 Telemetría</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <input type="number" id="in-ram" placeholder="RAM Lib (GB)">
-                <input type="number" id="in-cpu" placeholder="CPU Uso (%)">
-                <input type="number" id="in-temp" placeholder="Temp (°C)">
-                <input type="number" id="in-disk" placeholder="Disco Lib (%)">
+                <input type="number" min="0" id="in-ram" placeholder="RAM Lib (GB)">
+                <input type="number" min="0" id="in-cpu" placeholder="CPU Uso (%)">
+                <input type="number" min="0" id="in-temp" placeholder="Temp (°C)">
+                <input type="number" min="0" id="in-disk" placeholder="Disco Lib (%)">
             </div>
             <button id="btn-scan" onclick="intervencionIA()">INICIAR ESCANEO IA</button>
 
